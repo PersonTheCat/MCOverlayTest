@@ -29,10 +29,12 @@ public class Main
 		
 		//Blended overlay
 		boolean fancyOverlay = ProgramUsageSimplifier.useFancyTextures(scanner);
-
+		
 		System.out.println();
 		
 		List<String> textureLocations = ProgramUsageSimplifier.getOreTextureLocations(scanner);
+		
+		scanner.close();
 		
 		for (String path : textureLocations)
 		{			
@@ -55,14 +57,14 @@ public class Main
 			if (fancyOverlay) overlay = createImageFromColors(OverlayExtractor.extractBlendedOverlay(backgroundColors, oreColors));
 			else overlay = createImageFromColors(OverlayExtractor.extractNormalOverlay(backgroundColors, oreColors));
 			
+			IMGTools.getPixelClusters(getColorsFromImage(overlay));
+			
 			//Write files
 			writeImageToFile(newBackground, singleColorLocation);
 			writeImageToFile(overlay, overlayLocation);
 			
 			System.out.println();
 		}
-		
-		scanner.close();
 	}
 	
 	/**

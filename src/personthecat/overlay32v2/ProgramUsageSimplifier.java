@@ -11,7 +11,7 @@ public class ProgramUsageSimplifier
 	{
 		List<String> overlays = new ArrayList<>();		
 		
-		System.out.println("Run in automatic mode (use all textures found in /ore_textures/? Y/n:");
+		System.out.println("Run in automatic mode (use all textures found in /ore_textures/? (Y/n):");
 		
 		if (scanner.nextLine().equals("n"))
 		{
@@ -46,6 +46,7 @@ public class ProgramUsageSimplifier
 	{
 		System.out.println("Last background: " + MakeLifeEasier.getLastBackground());
 		System.out.print("Enter a suitable background texture (leave blank to reuse last background): ");
+		
 		String backgroundLocation = scanner.nextLine().replaceAll("\"", "").replace("\\", "/");
 		
 		if (backgroundLocation.isEmpty()) backgroundLocation = MakeLifeEasier.getLastBackground();

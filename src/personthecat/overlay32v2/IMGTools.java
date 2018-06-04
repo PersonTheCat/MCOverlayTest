@@ -342,6 +342,128 @@ public class IMGTools
 	}
 	
 	/**
+	 * Better version of removeLonePixels(). It works by testing each pixel to see if it's a part
+	 * of a larger mass. If the amount of pixels per cluster == (1/16 * image.length)^2, it is 
+	 * considered part of the ore sprite. Its benefit is that it only filters lone pixels out
+	 * if they are so distant from a cluster that the algorithm isn't able to find them. This
+	 * should allow surrounding pixels to be filled in a way that more aptly restores the original
+	 * shape of the ore sprites than was previously possible.
+	 * 
+	 * Note: this may need to be modified to verify that each pixel is of a similar shade to the
+	 * average of the cluster.
+	 * 
+	 * Edit: This could be modified into an actual extraction algorithm, which would work instead
+	 * by making sure that each pixel in the cluster is of the same color range, where it finally
+	 * ignores any color range that is on average close to the background color. May be unnecessary
+	 * and or ultimately no different from algorithm2(). Testing is needed.
+	 */
+	public static List<Color[][]> getPixelClusters(Color[][] image)
+	{
+		List<Color[][]> clusters = new ArrayList<>();
+		boolean[][] isPixelUsed = new boolean[image.length][image[0].length];
+		
+		//For each pixel...
+		for (int x = 1; x < image.length - 1; x++)
+		{
+			for (int y = 1; y < image[0].length - 1; y++)
+			{
+				Color[][] currentCluster = createBlankImage(image.length, image[0].length);
+				//boolean[][] isAlreadyInCluster = new boolean[image.length][image[0].length];
+				int clusterSize = 0;
+				
+				//If it's visible and not already used, 
+				//create a cluster. Then...
+				if (!isPixelUsed[x][y] && image[x][y].getAlpha() > TRANSPARENCY_THRESHOLD)
+				{
+					currentCluster[x][y] = image[x][y];
+					isPixelUsed[x][y] = true;
+					clusterSize++;
+					
+					boolean clusterHasMorePixels = true;
+					
+					while (clusterHasMorePixels)
+					{
+						clusterHasMorePixels = false;
+						
+						//Assuming the cluster has more pixels: for each pixel in the cluster,
+						//look for adjacent pixels and add them to the cluster.
+						for (int cX = 0; cX < currentCluster.length; cX++)
+						{
+							for (int cY = 0; cY < currentCluster[0].length; cY++)
+							{
+								if (currentCluster[cX][cY].getAlpha() > TRANSPARENCY_THRESHOLD)
+								{
+									//Look through all other pixels and see if it's adjacent.
+									for (int x2 = 0; x2 < image.length; x2++)
+									{
+										for (int y2 = 0; y2 < image[0].length; y2++)
+										{
+											if (!isPixelUsed[x2][y2] &&
+											image[x2][y2].getAlpha() > TRANSPARENCY_THRESHOLD &&
+											currentCluster[x2][y2].getAlpha() < TRANSPARENCY_THRESHOLD &&
+											arePixelsAdjacent(cX, cY, x2, y2))
+											{
+												currentCluster[x2][y2] = image[x2][y2];
+												isPixelUsed[x2][y2] = true;
+												clusterSize++;
+												clusterHasMorePixels = true;
+											}
+										}//end y2
+									}//end x2
+								}//end if--pixel exists
+							}//end cY
+						}//end cX
+					}//end while(clusterHasMorePixels)
+				}//end if--create cluster / finish cluster
+				
+				//It's a valid cluster if it's larger than the size of one single pixel in 16x. 
+				//This is where the lone pixels get removed (but not in 16x).
+				if (clusterSize >= Math.pow((image.length / 16), 2))
+				{
+					clusters.add(currentCluster);
+					
+					System.out.println("A cluster was found Size: " + clusterSize);
+					
+					//Main.writeImageToFile(Main.createImageFromColors(currentCluster), System.getProperty("user.dir") + "/cluster_" + clusters.indexOf(currentCluster) + ".png");
+				}
+			}
+		}
+		
+		return clusters;
+	}
+	
+	public static Color[][] createBlankImage(int w, int h)
+	{
+		Color[][] image = new Color[w][h];
+		
+		for (int x = 0; x < w; x++)
+		{
+			for (int y = 0; y < h; y++)
+			{
+				image[x][y] = new Color(0, 0, 0, 0);
+			}
+		}
+		
+		return image;
+	}
+	
+	/**
+	 * The specific distance used is to include diagonal pixels. 
+	 * That is intentional for >16x images.
+	 */
+	private static boolean arePixelsAdjacent(int x1, int y1, int x2, int y2)
+	{
+		double distance = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+		
+		return distance < 1.5;
+	}
+	
+	//private static Color[][] combineColorMatrices(Color[][]... images)
+	{
+		
+	}
+	
+	/**
 	 * Goes around the edge of the textures (on the borders between the pixels with full transparency and everything else)
 	 * and removes them if they are too different from the average color. If the pixel is brown but most of the ore is blue, 
 	 * it gets removed. If the background and the ore are pretty similar, nothing happens anyway. 
@@ -406,14 +528,14 @@ public class IMGTools
 	{
 		int alphaCount = 0;
 		
-		if (image[x + 1][y].getAlpha() < 20) alphaCount++;
-		if (image[x - 1][y].getAlpha() < 20) alphaCount++;
-		if (image[x][y + 1].getAlpha() < 20) alphaCount++;
-		if (image[x][y - 1].getAlpha() < 20) alphaCount++;
-		if (image[x + 1][y + 1].getAlpha() < 20) alphaCount++;
-		if (image[x - 1][y - 1].getAlpha() < 20) alphaCount++;
-		if (image[x + 1][y - 1].getAlpha() < 20) alphaCount++;
-		if (image[x - 1][y + 1].getAlpha() < 20) alphaCount++;
+		if (image[x + 1][y].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x - 1][y].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x][y + 1].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x][y - 1].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x + 1][y + 1].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x - 1][y - 1].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x + 1][y - 1].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
+		if (image[x - 1][y + 1].getAlpha() < TRANSPARENCY_THRESHOLD) alphaCount++;
 		
 		return alphaCount;
 	}
