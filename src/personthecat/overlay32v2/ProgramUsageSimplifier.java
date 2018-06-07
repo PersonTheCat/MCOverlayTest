@@ -25,6 +25,8 @@ public class ProgramUsageSimplifier
 			MakeLifeEasier.saveLastOreTexture(oreTextureLocation);
 			
 			overlays.add(oreTextureLocation);
+			
+			System.out.println();
 		}
 		
 		else
@@ -33,7 +35,7 @@ public class ProgramUsageSimplifier
 			
 			for (File file : new File(System.getProperty("user.dir") + "/ore_textures").listFiles())
 			{
-				if (file.isFile()) overlays.add(file.toString());
+				if (file.isFile() && file.getName().endsWith(".png")) overlays.add(file.toString());
 			}
 		}
 

@@ -8,10 +8,11 @@ import java.util.List;
 
 public class IMGTools
 {
-	private static final double TEXTURE_SHARPEN_RATIO = 2.0; //Multiplies the alpha levels for push and pull / overlay background textures.
-	private static final int TRANSPARENCY_THRESHOLD = 17;    //Pixels with lower alpha levels are considered transparent.
-	private static final int OPACITY_THRESHOLD = 50;         //Pixels with higher alpha levels are considered opaque.
-	private static final int SOLID_THRESHOLD = 120;			 //Pixels with higher alpha levels probably shouldn't have been removed...
+	private static final double TEXTURE_SHARPEN_RATIO = 2.0;       //Multiplies the alpha levels for push and pull / overlay background textures.
+	private static final double COLOR_RANGE_MAX_DIFFERENCE = 0.10; //Used for separating colors into ranges.
+	private static final int TRANSPARENCY_THRESHOLD = 17;          //Pixels with lower alpha levels are considered transparent.
+	private static final int OPACITY_THRESHOLD = 50;               //Pixels with higher alpha levels are considered opaque.
+	private static final int SOLID_THRESHOLD = 120;			       //Pixels with higher alpha levels probably shouldn't have been removed...
 	 
 	public static Color getAverageColor(Color[][] image)
 	{
@@ -32,6 +33,8 @@ public class IMGTools
 				}
 			}
 		}
+		
+		if (pixelCount == 0) return new Color(0, 0, 0, 0);
 		
 		r /= pixelCount;
 		g /= pixelCount;
@@ -229,16 +232,24 @@ public class IMGTools
 	public static double getAverageDifferenceFromColor(Color color, Color[][] image)
 	{
 		double averageDifference = 0.0;
+		int pixelCount = 0;
 		
 		for (int x = 0; x < image.length; x++)
 		{
 			for (int y = 0; y < image[0].length; y++)
 			{
-				averageDifference += getDifference(color, image[x][y]);
+				if (image[x][y].getAlpha() > TRANSPARENCY_THRESHOLD)
+				{
+					averageDifference += getDifference(color, image[x][y]);
+					
+					pixelCount++;
+				}
+				
+				
 			}
 		}
 		
-		averageDifference /= (image.length * image[0].length);
+		averageDifference /= pixelCount;
 		
 		return averageDifference;
 	}
@@ -314,6 +325,76 @@ public class IMGTools
 		return Math.sqrt(r2 + g2 + b2) / 441.673; //Roughly the maximum distance.
 	}
 	
+	/**
+	 * Gets the average difference from all adjacent pixels.
+	 */
+	public static double getAverageDifference(Color[][] image)
+	{
+		double averageDifference = 0.0;
+		int pixelCount = 0;
+		
+		for (int x = 0; x < image.length; x++)
+		{
+			for (int y = 0; y < image[0].length; y++)
+			{				
+				for (int x2 = 0; x2 < image.length; x2++)
+				{
+					for (int y2 = 0; y2 < image[0].length; y2++)
+					{						
+						if (arePixelsAdjacent(x, y, x2, y2))
+						{
+							averageDifference += getDifference(image[x][y], image[x2][y2]);
+							
+							pixelCount++;
+						}
+					}
+				}
+			}
+		}
+		
+		averageDifference /= pixelCount;
+		
+		return averageDifference;
+	}
+
+	/**
+	 * Basically just calculates the SD for r, g, and b of each color,
+	 * then returns that as a color.
+	 */
+	public static Color getStandardDeviation(Color[][] image)
+	{
+		LimitlessColor average = LimitlessColor.fromColor(getAverageColor(image));
+		
+		List<LimitlessColor> devianceValues = new ArrayList<>();
+
+		for (int x = 0; x < image.length; x++)
+		{
+			for (int y = 0; y < image[0].length; y++)
+			{
+				LimitlessColor noLimits = LimitlessColor.fromColor(image[x][y]);
+				
+				LimitlessColor deviance = LimitlessColor.subtractColors(noLimits, average);
+				
+				deviance.squareColor();
+				
+				devianceValues.add(deviance);
+			}
+		}
+		
+		LimitlessColor sum = devianceValues.get(0);
+		
+		for (int i = 1; i < devianceValues.size(); i++)
+		{
+			sum = LimitlessColor.addColors(sum, devianceValues.get(i));
+		}
+		
+		sum.divideBy(devianceValues.size());
+		
+		sum.toSquareRoot();
+		
+		return sum.getColor();
+	}
+	
 	public static boolean isPixelDarker(Color foreground, Color background)
 	{
 		int fgTotal = (Math.abs(foreground.getRed() + foreground.getGreen() + foreground.getBlue()));
@@ -356,65 +437,63 @@ public class IMGTools
 	 * by making sure that each pixel in the cluster is of the same color range, where it finally
 	 * ignores any color range that is on average close to the background color. May be unnecessary
 	 * and or ultimately no different from algorithm2(). Testing is needed.
+	 * 
+	 * Note 2: an unusually high number of clusters may indicate that the texture hasn't generated
+	 * correctly. Not sure how to use that, though, especially considering that, if this is
+	 * happening for one image, it's most likely also happening for a lot of others.
 	 */
 	public static List<Color[][]> getPixelClusters(Color[][] image)
 	{
-		List<Color[][]> clusters = new ArrayList<>();
 		boolean[][] isPixelUsed = new boolean[image.length][image[0].length];
+		List<Color[][]> clusters = new ArrayList<>();
 		
 		//For each pixel...
-		for (int x = 1; x < image.length - 1; x++)
-		{
-			for (int y = 1; y < image[0].length - 1; y++)
+		for (int x = 0; x < image.length; x++)
+		for (int y = 0; y < image[0].length; y++)
+		{			
+			//If the pixel is visible and not already used, create a cluster.
+			if (!isPixelUsed[x][y] && image[x][y].getAlpha() > TRANSPARENCY_THRESHOLD)
 			{
 				Color[][] currentCluster = createBlankImage(image.length, image[0].length);
-				//boolean[][] isAlreadyInCluster = new boolean[image.length][image[0].length];
-				int clusterSize = 0;
+				int clusterSize = 1;
+				currentCluster[x][y] = image[x][y];
+				isPixelUsed[x][y] = true;
 				
-				//If it's visible and not already used, 
-				//create a cluster. Then...
-				if (!isPixelUsed[x][y] && image[x][y].getAlpha() > TRANSPARENCY_THRESHOLD)
+				boolean clusterHasMorePixels = true;
+				
+				//While there may be more pixels to add, continue looking
+				while (clusterHasMorePixels)
 				{
-					currentCluster[x][y] = image[x][y];
-					isPixelUsed[x][y] = true;
-					clusterSize++;
-					
-					boolean clusterHasMorePixels = true;
-					
-					while (clusterHasMorePixels)
+					Color averageColor = getAverageColor(currentCluster);
+					clusterHasMorePixels = false;
+
+					//For each pixel in the current cluster
+					for (int cX = 0; cX < currentCluster.length; cX++)
+					for (int cY = 0; cY < currentCluster[0].length; cY++)
 					{
-						clusterHasMorePixels = false;
-						
-						//Assuming the cluster has more pixels: for each pixel in the cluster,
-						//look for adjacent pixels and add them to the cluster.
-						for (int cX = 0; cX < currentCluster.length; cX++)
+						if (currentCluster[cX][cY].getAlpha() > TRANSPARENCY_THRESHOLD)
 						{
-							for (int cY = 0; cY < currentCluster[0].length; cY++)
+							//Look through pixels in the original and see if one is adjacent.
+							for (int x2 = 0; x2 < image.length; x2++)
+							for (int y2 = 0; y2 < image[0].length; y2++)
 							{
-								if (currentCluster[cX][cY].getAlpha() > TRANSPARENCY_THRESHOLD)
+								double differenceFromAverage = getDifference(averageColor, image[x2][y2]);								
+								
+								if (arePixelsAdjacent(cX, cY, x2, y2) &&                    //Pixels are adjacent
+								!isPixelUsed[x2][y2] &&                                     //Pixel is not already used       //Dupe?
+								differenceFromAverage < COLOR_RANGE_MAX_DIFFERENCE &&       //Color is in the same range as the rest of the cluster
+								image[x2][y2].getAlpha() > TRANSPARENCY_THRESHOLD &&        //Original pixel exists
+								currentCluster[x2][y2].getAlpha() < TRANSPARENCY_THRESHOLD) //Pixel is not already in cluster //Dupe of ^?
 								{
-									//Look through all other pixels and see if it's adjacent.
-									for (int x2 = 0; x2 < image.length; x2++)
-									{
-										for (int y2 = 0; y2 < image[0].length; y2++)
-										{
-											if (!isPixelUsed[x2][y2] &&
-											image[x2][y2].getAlpha() > TRANSPARENCY_THRESHOLD &&
-											currentCluster[x2][y2].getAlpha() < TRANSPARENCY_THRESHOLD &&
-											arePixelsAdjacent(cX, cY, x2, y2))
-											{
-												currentCluster[x2][y2] = image[x2][y2];
-												isPixelUsed[x2][y2] = true;
-												clusterSize++;
-												clusterHasMorePixels = true;
-											}
-										}//end y2
-									}//end x2
-								}//end if--pixel exists
-							}//end cY
-						}//end cX
-					}//end while(clusterHasMorePixels)
-				}//end if--create cluster / finish cluster
+									currentCluster[x2][y2] = image[x2][y2];
+									isPixelUsed[x2][y2] = true;
+									clusterSize++;
+									clusterHasMorePixels = true;
+								}
+							}
+						}
+					}
+				}
 				
 				//It's a valid cluster if it's larger than the size of one single pixel in 16x. 
 				//This is where the lone pixels get removed (but not in 16x).
@@ -422,16 +501,19 @@ public class IMGTools
 				{
 					clusters.add(currentCluster);
 					
-					System.out.println("A cluster was found Size: " + clusterSize);
+					System.out.println("Cluster #" + clusters.indexOf(currentCluster) +". Size: " + clusterSize);
 					
-					//Main.writeImageToFile(Main.createImageFromColors(currentCluster), System.getProperty("user.dir") + "/cluster_" + clusters.indexOf(currentCluster) + ".png");
+					Main.writeImageToFile(Main.createImageFromColors(currentCluster), System.getProperty("user.dir") + "/cluster_" + clusters.indexOf(currentCluster) + ".png");
 				}
-			}
+			}//end if (!isPixelUsed[x][y] && image[x][y].getAlpha() > TRANSPARENCY_THRESHOLD)
 		}
 		
 		return clusters;
 	}
 	
+	/**
+	 * Helps to avoid NullPointerExceptions.
+	 */
 	public static Color[][] createBlankImage(int w, int h)
 	{
 		Color[][] image = new Color[w][h];
@@ -451,8 +533,10 @@ public class IMGTools
 	 * The specific distance used is to include diagonal pixels. 
 	 * That is intentional for >16x images.
 	 */
-	private static boolean arePixelsAdjacent(int x1, int y1, int x2, int y2)
+	public static boolean arePixelsAdjacent(int x1, int y1, int x2, int y2)
 	{
+		if ((x1 == x2) && (y1 == y2)) return false;
+		
 		double distance = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 		
 		return distance < 1.5;
@@ -654,7 +738,7 @@ public class IMGTools
 	/**
 	 * Just used for getting the average of multiple colors more neatly.
 	 */
-	public static Color[][] colorsToMatrix(Color... colors)
+	public static Color[][] arrayToMatrix(Color... colors)
 	{
 		Color[][] newMatrix = new Color[1][colors.length];
 		
@@ -664,6 +748,29 @@ public class IMGTools
 		}
 		
 		return newMatrix;
+	}
+	
+	/**
+	 * Used for equalizing color sums.
+	 */
+	public static Color[] matrixToArray(Color[][] colors)
+	{
+		Color[] newArray = new Color[colors.length * colors[0].length];
+		
+		for (int x = 0; x < colors.length; x++)
+		{
+			for (int y = 0; y < colors[0].length; y++)
+			{
+				newArray[x * colors.length + y] = colors[x][y];
+			}
+		}
+		
+		return newArray;
+	}
+	
+	public static int getChannelAverage(Color color)
+	{
+		return (color.getRed() + color.getGreen() + color.getBlue()) / 3;
 	}
 	
 	/**
@@ -691,8 +798,16 @@ public class IMGTools
 			int b = colors[i].getBlue();
 			
 			int deviance = (averageSum - (r + g + b));
+			
+			r += (deviance / 3);
+			g += (deviance / 3);
+			b += (deviance / 3);
+			
+			r = r > 250 ? 250 : r < 0 ? 0 : r;
+			g = g > 250 ? 250 : g < 0 ? 0 : g;
+			b = b > 250 ? 250 : b < 0 ? 0 : b;
 
-			newColors[i] = new Color(r + (deviance / 3), g + (deviance / 3), b + (deviance / 3));
+			newColors[i] = new Color(r, g, b);
 		}
 		
 		return newColors;
@@ -758,6 +873,110 @@ public class IMGTools
 			}
 			
 			return colors;
+		}
+	}
+	
+	private static class LimitlessColor
+	{
+		private int r, g, b;
+		
+		LimitlessColor(int r, int g, int b)
+		{
+			this.r = r;
+			this.g = g;
+			this.b = b;
+		}
+		
+		public static LimitlessColor fromColor(Color color)
+		{
+			return new LimitlessColor(color.getRed(), color.getGreen(), color.getBlue());
+		}
+		
+		public static LimitlessColor addColors(LimitlessColor... colors)
+		{
+			int r = colors[0].r, g = colors[0].g, b = colors[0].b;
+			
+			for (int i = 1; i < colors.length; i++)
+			{
+				r += colors[i].getRed();
+				g += colors[i].getGreen();
+				b += colors[i].getBlue();
+			}
+			
+			return new LimitlessColor(r, g, b);
+		}
+		
+		public static LimitlessColor subtractColors(LimitlessColor... colors)
+		{
+			int r = colors[0].r, g = colors[0].g, b = colors[0].b;
+			
+			for (int i = 1; i < colors.length; i++)
+			{
+				r -= colors[i].getRed();
+				g -= colors[i].getGreen();
+				b -= colors[i].getBlue();
+			}
+			
+			return new LimitlessColor(r, g, b);
+		}
+		
+		public void divideBy(int number)
+		{
+			this.r /= number;
+			this.g /= number;
+			this.b /= number;
+		}
+		
+		public void squareColor()
+		{
+			this.r = (int) Math.pow(r, 2);
+			this.g = (int) Math.pow(g, 2);
+			this.b = (int) Math.pow(b, 2);
+		}
+		
+		public void toSquareRoot()
+		{
+			this.r = (int) Math.sqrt(r);
+			this.g = (int) Math.sqrt(g);
+			this.b = (int) Math.sqrt(b);
+		}
+		
+		public int getRed() {return r;}
+		
+		public int getGreen() {return g;}
+		
+		public int getBlue() {return b;}
+		
+		public Color getColor()
+		{
+			if (r < 0 || g < 0 || b < 0 || r > 255 || g > 255 || b > 255)
+			{
+				System.err.println("Error: Your color is still limitless. Cannot convert from invalid color ranges.");
+				
+				System.err.println("r = " + r + ", g = " + g + ", b = " + b);
+				
+				return null;
+			}
+			
+			return new Color(r, g, b);
+		}
+		
+		public static LimitlessColor getLimitlessAverage(LimitlessColor... colors)
+		{
+			int r = 0, g = 0, b = 0;
+			
+			for (LimitlessColor color : colors)
+			{
+				r += color.getRed();
+				g += color.getGreen();
+				b += color.getBlue();
+			}
+			
+			r /= colors.length;
+			g /= colors.length;
+			b /= colors.length;
+			
+			return new LimitlessColor(r, g, b);
 		}
 	}
 }

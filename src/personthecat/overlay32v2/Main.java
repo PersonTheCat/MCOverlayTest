@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -48,7 +49,8 @@ public class Main
 			BufferedImage oreTexture = getImageFromFile(path);
 			Color[][] oreColors = getColorsFromImage(oreTexture);
 			
-			BufferedImage newBackground = IMGTools.scaleImage(createImageFromColors(IMGTools.fillColors(backgroundColors, IMGTools.getAverageColor(backgroundColors))), oreColors.length, oreColors.length);
+			//BufferedImage newBackground = IMGTools.scaleImage(createImageFromColors(IMGTools.fillColors(backgroundColors, IMGTools.getAverageColor(backgroundColors))), oreColors.length, oreColors.length);
+			BufferedImage newBackground = IMGTools.scaleImage(createImageFromColors(backgroundColors), oreColors.length, oreColors.length);
 			backgroundColors = getColorsFromImage(newBackground);
 
 			//Create overlay
@@ -57,13 +59,48 @@ public class Main
 			if (fancyOverlay) overlay = createImageFromColors(OverlayExtractor.extractBlendedOverlay(backgroundColors, oreColors));
 			else overlay = createImageFromColors(OverlayExtractor.extractNormalOverlay(backgroundColors, oreColors));
 			
-			IMGTools.getPixelClusters(getColorsFromImage(overlay));
+			//overlay = createImageFromColors(OverlayExtractor.algorithm1FromSD(backgroundColors, oreColors, IMGTools.getChannelAverage(IMGTools.getStandardDeviation(oreColors))));
+			//overlay = createImageFromColors(OverlayExtractor.algorithm1NoLoop(backgroundColors, oreColors));
+			
+			System.out.println();
+			
+			//IMGTools.getPixelClusters(oreColors);
+			printImageStats(oreColors);
+			
+			System.out.println();
+			
+			//OverlayExtractor.algorithm1MultiThresholdTest(backgroundColors, oreColors, new File(path).getName());
 			
 			//Write files
 			writeImageToFile(newBackground, singleColorLocation);
 			writeImageToFile(overlay, overlayLocation);
 			
 			System.out.println();
+			
+//			for (File png : new File(System.getProperty("user.dir") + "/output/thresholds").listFiles())
+//			{
+//				Color[][] colors = getColorsFromImage(getImageFromFile(png.getPath()));
+//				int alphaCount = 0, pixelCount = 0;				
+//				
+//				for (int x = 0; x < colors.length; x++)
+//				{
+//					for (int y = 0; y < colors[0].length; y++)
+//					{
+//						pixelCount++;
+//						
+//						if (colors[x][y].getAlpha() < 20)
+//						{
+//							alphaCount++;
+//						}
+//					}
+//				}
+//				
+//				if ((double) alphaCount / (double) pixelCount > 0.96) png.delete();
+//			}
+			
+			Color[] colors = IMGTools.equalizeColorSums(new Color[] {new Color(125, 118, 192), new Color(67, 57, 59)});
+			
+			System.out.println("difference for equalized values: " + IMGTools.getDifference(colors[0], colors[1]));			
 		}
 	}
 	
@@ -107,7 +144,7 @@ public class Main
 		return colors;
 	}
 	
-	private static BufferedImage createImageFromColors(Color[][] image)
+	public static BufferedImage createImageFromColors(Color[][] image)
 	{
 		int w = image.length, h = image[0].length;
 		
@@ -124,7 +161,7 @@ public class Main
 		return bufferedImage;
 	}
 	
-	private static void writeImageToFile(BufferedImage image, String location)
+	public static void writeImageToFile(BufferedImage image, String location)
 	{
 		try
 		{
@@ -136,27 +173,109 @@ public class Main
 		catch (IOException e) {System.err.println("Error: Could not create image file.");}
 	}
 	
+	private static void printImageStats(Color[][] image)
+	{
+		System.out.println("Average Difference: " + IMGTools.getAverageDifference(image));
+		System.out.println("Standard Deviation: " + IMGTools.getChannelAverage(IMGTools.getStandardDeviation(image)));
+	}
 	/**
 	 * Most of these algorithms accept Color matrices as backgrounds. This is in case
 	 * I decide to revert to extracting images based on per-pixel calculations, like before.
 	 */
 	private static class OverlayExtractor
 	{		
+		//A texture's SD and optimal threshold are highly correlated (r = 0.9174)
+		//Average difference is slightly higher (r = 0.9230). 
+		//Try correlating with the highest channel from SD instead. 
+		private static final double SD_THRESHOLD_RATIO = 0.0055; 
+		
 		/**
-		 * Decides which algorithm to use. Applies no effects.
+		 * Decides which algorithm to use. If one misses good pixels found in the other,
+		 * adds those pixels. If any exclusive pixels are clearly bad, removes them.
+		 * 
+		 * Note: for all overlays included in the mod where normal stone is the background, 
+		 * this only fixes two images. I'm not sure if it's actually a good solution, but
+		 * it does fix those two overlays.
 		 */
 		private static Color[][] extractNormalOverlay(Color[][] background, Color[][] image)
-		{
-			if (IMGTools.getGreatestDifference(image) > 0.30) //number based on data from a collection of overlays generated.
+		{			
+			int w = image.length, h = image[0].length;
+			
+			//Getting a single color to avoid issues with frames and ores with no equivalent background.
+			Color[][] singleColorBG = IMGTools.fillColors(background, IMGTools.getAverageColor(background));
+			
+			Color[][] algorithm1 = algorithm1FromSD(singleColorBG, image, IMGTools.getChannelAverage(IMGTools.getStandardDeviation(image)));
+			Color[][] alg1Exclusives = IMGTools.createBlankImage(w, h);
+			
+			Color[][] algorithm2 = algorithm2(singleColorBG, image, getComparisonColors(background, image));
+			Color[][] alg2Exclusives = IMGTools.createBlankImage(w, h);
+			
+			for (int x = 0; x < w; x++)
 			{
-				System.out.println("Using algorithm 2.");
-				
-				return algorithm2(background, image, getComparisonColors(background, image));
+				for (int y = 0; y < h; y++)
+				{
+					if (algorithm1[x][y].getAlpha() > 127 && algorithm2[x][y].getAlpha() < 127)
+					{
+						alg1Exclusives[x][y] = algorithm1[x][y];
+					}
+					
+					if (algorithm2[x][y].getAlpha() > 127 && algorithm1[x][y].getAlpha() < 127)
+					{
+						alg2Exclusives[x][y] = algorithm1[x][y];
+					}
+				}
 			}
 			
-			System.out.println("Using algorithm 1.");
+			//Getting the average color in case the image forwarded in isn't
+			//just one color. This actually has to be just one color.
+			Color averageColorBG = IMGTools.getAverageColor(background);
 			
-			return algorithm1NoLoop(image, background);
+			Double alg1ExclusivesDifferenceFromBG = new Double(IMGTools.getAverageDifferenceFromColor(averageColorBG, alg1Exclusives));
+			Double noDifference = new Double(0.4901960295198231);
+			
+			/*
+			 * The exclusives from algorithm1's output are the most useful;
+			 * they tend to either have pixels that algorithm2's output is missing
+			 * (as 2's problems are usually the result of not including enough pixels)
+			 * or they just have too many pixels (i.e. 1's problems are usually the
+			 * result of including too many pixels. The opposite is not true. We can
+			 * use this information to decide when to add extra pixels to algorithm2's
+			 * output or when to remove pixels from algorithm1's output.
+			 */
+
+			if (!alg1ExclusivesDifferenceFromBG.equals(noDifference))
+			{
+				System.out.println("alg1ExclusivesDifferenceFromBG" + alg1ExclusivesDifferenceFromBG);
+				
+				if (alg1ExclusivesDifferenceFromBG < 0.1) //These shouldn't be here.
+				{
+					System.out.println("removing extra pixels from alg 1");
+					
+					algorithm1 = IMGTools.removePixelsUsingMask(algorithm1, alg1Exclusives);
+				}
+				
+				//This value is too picky. Thus, this entire function is not a good long-term solution.
+				if (alg1ExclusivesDifferenceFromBG > 0.27) //These probably should have been kept.
+				{
+					System.out.println("adding extra pixels to alg 2");
+					
+					algorithm2 = IMGTools.overlayImage(algorithm2, alg1Exclusives);
+				}
+			}
+			
+			//Pixels may sometimes be similar at this point, but this if statement 
+			//still helps decide the best algorithm when they aren't.
+			
+			if (IMGTools.getGreatestDifference(image) > 0.45)
+			{				
+				System.out.println("algorithm 2");
+				
+				return algorithm2;
+			}
+
+			System.out.println("algorithm 1");
+			
+			return algorithm1;
 		}
 		
 		/**
@@ -193,7 +312,7 @@ public class Main
 			
 			if (guessedColor == null) return new Color[] {mostUniqueColor};
 			
-			Color blendedColor = IMGTools.getAverageColor(IMGTools.colorsToMatrix(mostUniqueColor,guessedColor));
+			Color blendedColor = IMGTools.getAverageColor(IMGTools.arrayToMatrix(mostUniqueColor,guessedColor));
 			
 			//Debug stuff
 			
@@ -217,7 +336,7 @@ public class Main
 		 * one color. Depending on how things turn out, @background may eventually be a single Color()
 		 * for the same reason.
 		 */
-		private static Color[][] algorithm1NoLoop(Color[][] image, Color[][] background)
+		private static Color[][] algorithm1NoLoop(Color[][] background, Color[][] image)
 		{
 			int w = image.length, h = image[0].length, bh = background[0].length;
 			
@@ -236,6 +355,55 @@ public class Main
 			}
 			
 			return overlay;
+		}
+		
+		private static Color[][] algorithm1FromSD(Color[][] background, Color[][] image, int SD)
+		{
+			int w = image.length, h = image[0].length, bh = background[0].length;
+			
+			if (h % bh != 0) return null; //No decimals allowed.
+			
+			Color[][] overlay = new Color[w][h];
+
+			double threshold = SD * SD_THRESHOLD_RATIO; //Threshold used for separating ore from background.
+
+			for (int x = 0; x < w; x++)
+			{
+				for (int y = 0; y < bh; y++)
+				{
+					overlay[x][y] = IMGTools.getOrePixel2(image[x][y], background[x][y], threshold);	
+				}
+			}
+			
+			return overlay;
+		}
+		
+		private static void algorithm1MultiThresholdTest(Color[][] background, Color[][] image, String filename)
+		{
+			int w = image.length, h = image[0].length, bh = background[0].length;
+			
+			double threshold = 1.0;
+			
+			while (threshold > 0)
+			{
+				threshold -= 0.05;
+				
+				Color[][] overlay = new Color[w][h];
+
+				for (int x = 0; x < w; x++)
+				{
+					for (int y = 0; y < bh; y++)
+					{
+						overlay[x][y] = IMGTools.getOrePixel2(image[x][y], background[x][y], threshold);	
+					}
+				}
+				
+				new File(System.getProperty("user.dir") + "/output/thresholds").mkdirs();
+				
+				BufferedImage bi = createImageFromColors(overlay);
+				
+				writeImageToFile(bi, System.getProperty("user.dir") + "/output/thresholds/" + filename + "_" + String.valueOf(threshold).replace('.', 'D') + ".png");
+			}
 		}
 		
 		//The biggest problem with this algorithm is that the colors passed into it are often not geniune.
@@ -270,7 +438,7 @@ public class Main
 		}
 		
 		//This might currently be very slow for large images (>256x or so) due to the number of iterations. Luckily, most aren't >16-32x.
-		private static Color[][] algorithm1(double targetAlpha, Color[][] image, Color[][] background)
+		private static Color[][] algorithm1(double targetAlpha, Color[][] background, Color[][] image)
 		{
 			int w = image.length, h = image[0].length, bh = background[0].length;
 			int frames = h / bh;
@@ -316,6 +484,117 @@ public class Main
 			return overlay;
 		}
 		
-
+		private static void algorithm3(Color[][] background, Color[][] image)
+		{
+			List<Color[][]> clusters = getMatchingPixelClusters(background, image, getComparisonColors(background, image));
+			
+			for (Color[][] cluster : clusters)
+			{
+				System.out.println("Current cluster: " + clusters.indexOf(cluster));
+				
+				double averageDifference = 0.0;
+				int pixelCount = 0;
+				
+				for (int x = 0; x < cluster.length; x++)
+				{
+					for (int y = 0; y < cluster[0].length; y++)
+					{						
+						if (cluster[x][y].getAlpha() > 17) 
+						{
+							averageDifference += IMGTools.getDifference(image[x][y], background[x][y]);
+							
+							pixelCount++;
+						}
+					}
+				}
+				
+				averageDifference /= pixelCount;
+				
+				System.out.println("averageDifference " + averageDifference);
+			}
+		}
+		
+		private static List<Color[][]> getMatchingPixelClusters(Color[][] background, Color[][] image, Color... colors)
+		{
+			List<Color[][]> clusters = new ArrayList<>();
+			boolean[][] isPixelUsed = new boolean[image.length][image[0].length];
+			
+			//For each pixel...
+			for (int x = 1; x < image.length - 1; x++)
+			{
+				for (int y = 1; y < image[0].length - 1; y++)
+				{
+					Color[][] currentCluster = IMGTools.createBlankImage(image.length, image[0].length);
+					int clusterSize = 0;
+					
+					double differenceFromBackground = IMGTools.getDifference(image[x][y], background[x][y]);
+					
+					//If it's visible and not already used, 
+					//create a cluster. Then...
+					if (!isPixelUsed[x][y] && image[x][y].getAlpha() > 17 && differenceFromBackground > 0.35)
+					{
+						currentCluster[x][y] = image[x][y];
+						isPixelUsed[x][y] = true;
+						clusterSize++;
+						
+						boolean clusterHasMorePixels = true;
+						
+						while (clusterHasMorePixels)
+						{
+							clusterHasMorePixels = false;
+							
+							//Assuming the cluster has more pixels: for each pixel in the cluster,
+							//look for adjacent pixels and add them to the cluster.
+							for (int cX = 0; cX < currentCluster.length; cX++)
+							{
+								for (int cY = 0; cY < currentCluster[0].length; cY++)
+								{
+									if (currentCluster[cX][cY].getAlpha() > 17)
+									{
+										//Look through all other pixels and see if it's adjacent.
+										for (int x2 = 0; x2 < image.length; x2++)
+										{
+											for (int y2 = 0; y2 < image[0].length; y2++)
+											{
+												for (Color color : colors)
+												{
+													differenceFromBackground = IMGTools.getDifference(image[x2][y2], background[x2][y2]);
+													double differenceFromColor = IMGTools.getDifference(image[x2][y2], color);
+														
+													if (!isPixelUsed[x2][y2] &&                       //Not already part of a cluster
+													image[x2][y2].getAlpha() > 17 &&                  //the pixel exists in the image
+													differenceFromColor < differenceFromBackground && //Closer to current color than bg
+													currentCluster[x2][y2].getAlpha() < 17 &&         //Not already in this cluster
+													IMGTools.arePixelsAdjacent(cX, cY, x2, y2))       //Pixels are proximally close
+													{
+														currentCluster[x2][y2] = image[x2][y2];
+														isPixelUsed[x2][y2] = true;
+														clusterSize++;
+														clusterHasMorePixels = true;
+													}	
+												}//end comparison colors
+											}//end y2
+										}//end x2
+									}//end if--pixel exists
+								}//end cY
+							}//end cX
+						}//end while(clusterHasMorePixels)
+					}//end if--create cluster / finish cluster
+					
+					//It's a valid cluster if it's larger than the size of one single pixel in 16x. 
+					//This is where the lone pixels get removed (but not in 16x).
+					if (clusterSize >= Math.pow((image.length / 16), 2))
+					{
+						clusters.add(currentCluster);
+						
+						System.out.println("A cluster was found. Size: " + clusterSize);
+						
+						Main.writeImageToFile(Main.createImageFromColors(currentCluster), System.getProperty("user.dir") + "/cluster_" + clusters.indexOf(currentCluster) + ".png");
+					}
+				}
+			}
+			
+			return clusters;
+		}
 	}
 }
