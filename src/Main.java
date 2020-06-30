@@ -31,7 +31,7 @@ public class Main {
             final Color[][] bg = getColors(pair.background);
             final Color[][] fg = getColors(pair.ore);
             debugImage(pair.name, bg, fg);
-            for (double d = 0.0; d < 1.0; d += 0.05) {
+            for (double d = 0.0; d < 2.0; d += 0.05) {
                 final String name = pair.name.replace(".png", "");
                 final File dir = new File(OUTPUT, name);
                 mkdir(dir);
