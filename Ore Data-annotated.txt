@@ -1,30 +1,51 @@
+TODO: switch back to standard dist for avg / max.
+TODO: dist doesn't correlate because using relative?
+
 /////////////////////////////////
      /// CORRELATIONS ///
 /////////////////////////////////
 
 WITH: min ideal
-diff(fg/bg): 0.87
-diff(fg):    0.62 
-diff(bg):    0.91
-diffD:       0.89
-diffU:       0.32
-diffS:       0.33 
+diff(fg/bg):  0.67
+diff(fg):     0.60
+diff(bg):     0.78
+diffD:        0.36
+diffE:        0.19
+diffU:       -0.39
+diffS:        0.64
+diffW:        0.49
+avgDst:       0.67
+maxDst:       0.86
+ratDst:      -0.26
+avgDstBg:     0.78
 
 WITH: max ideal
-diff(fg/bg): 0.47
-diff(fg):    0.37
-diff(bg):    0.60
-diffD:       0.44
-diffU:       0.16
-diffS:       0.16
+diff(fg/bg):  0.29
+diff(fg):     0.42
+diff(bg):     0.47
+diffD:        0.17
+diffE:       -0.01
+diffU:       -0.27
+diffS:        0.42
+diffW:        0.35
+avgDst:       0.29
+maxDst:       0.63
+ratDst:       0.10
+avgDstBg:     0.47
 
-WITH: diff ideal
-diff(fg/bg): -0.22
-diff(fg):    -0.26
-diff(bg):    -0.73
-diffD:       -0.03
-diffU:        0.60
-diffS:       -0.72
+WITH: avg ideal
+diff(fg/bg):  0.51
+diff(fg):     0.56
+diff(bg):     0.63
+diffD:        0.25
+diffE:        0.11
+diffU:       -0.31
+diffS:        0.51
+diffW:        0.43
+avgDst:       0.51
+maxDst:       0.78
+ratDst:      -0.10
+avgDstBg:     0.63
 
 /////////////////////////////////
         /// VALUES ///
@@ -35,529 +56,757 @@ diff(fg/bg): 0.1887158624282864
 diff(fg):    0.17264768769776567
 diff(bg):    0.07260158774503678
 diffD:       0.016068174730520718
+diffE:       0.11611427468324961
 diffU:       0.1000460999527289
 diffS:       0.05653341301451606
+diffW:       1.8862890459243624
 multD:       31.71068507168648
 multU:       5.092980423995779
 multS:       9.012950065928989
-min ideal:   0.65
-max ideal:   1.90
-diff ideal:  1.25
+avgDst:      0.1887158624282864
+maxDst:      0.8846041565801035
+ratDst:      4.687492324161465
+avgDstBg:    0.07260158774503678
+min ideal:   0.60
+max ideal:   2.05
+avg ideal:   1.325
 
 name:        eximite_ore.png
 diff(fg/bg): 0.32190228179600666
 diff(fg):    0.175594273516884
 diff(bg):    0.07260158774503678
 diffD:       0.14630800827912266
+diffE:       0.24930069405096988
 diffU:       0.10299268577184723
 diffS:       0.07370642053408588
+diffW:       3.1254868186377345
 multD:       5.940455147137964
 multU:       8.438814410321884
 multS:       11.791865003772392
-min ideal:   1.50
-max ideal:   1.95
-diff ideal:  0.50
+avgDst:      0.32190228179600666
+maxDst:      0.813656896794084
+ratDst:      2.527651845940341
+avgDstBg:    0.07260158774503678
+min ideal:   1.20
+max ideal:   2.40
+avg ideal:   1.80
 
 name:        meutoite_ore.png
 diff(fg/bg): 0.3399704092992088
 diff(fg):    0.17134193785282276
 diff(bg):    0.07260158774503678
 diffD:       0.16862847144638604
+diffE:       0.267368821554172
 diffU:       0.09874035010778598
 diffS:       0.09602688370134926
+diffW:       3.4430747807567386
 multD:       5.443446751515556
 multU:       9.296301908043194
 multS:       9.558990875541307
-min ideal:   1.75
-max ideal:   1.85
-diff ideal:  0.10
+avgDst:      0.3399704092992088
+maxDst:      0.8247764399664048
+ratDst:      2.4260241991841034
+avgDstBg:    0.07260158774503678
+min ideal:   1.50
+max ideal:   2.05
+avg ideal:   1.775
 
 name:        alduorite_ore.png
 diff(fg/bg): 0.1416235286279319
 diff(fg):    0.15692048488761157
 diff(bg):    0.15527735931926323
 diffD:       0.015296956259679667
+diffE:       0.013653830691331331
 diffU:       0.001643125568348336
 diffS:       0.1705743155789429
+diffW:       86.19154333426347
 multD:       24.997360311692727
 multU:       232.7171670025114
 multS:       2.241741530649417
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.1416235286279319
+maxDst:      0.6943132593666332
+ratDst:      4.902527610300598
+avgDstBg:    0.15527735931926323
+min ideal:   0.65
+max ideal:   1.90
+avg ideal:   1.275
 
 name:        ceruclase_ore.png
 diff(fg/bg): 0.16540875287980014
 diff(fg):    0.14793923701489992
 diff(bg):    0.15527735931926323
 diffD:       0.017469515864900226
+diffE:       0.010131393560536911
 diffU:       0.007338122304363315
 diffS:       0.137807843454363
+diffW:       22.54101880823744
 multD:       25.564740100942178
 multU:       60.86075078224109
 multS:       3.2407707832926027
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.16540875287980014
+maxDst:      0.7662795175862162
+ratDst:      4.632641890136607
+avgDstBg:    0.15527735931926323
+min ideal:   1.10
+max ideal:   2.25
+avg ideal:   1.675
 
 name:        ignatius_ore.png
 diff(fg/bg): 0.16042101635657852
 diff(fg):    0.16027419319826036
 diff(bg):    0.15527735931926323
 diffD:       1.468231583181545E-4
+diffE:       0.005143657037315286
 diffU:       0.004996833878997131
 diffS:       0.15513053616094508
+diffW:       32.104532638330404
 multD:       2950.0573964237165
 multU:       86.6822381234921
 multS:       2.7920792055626666
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.16042101635657852
+maxDst:      0.8787346871882523
+ratDst:      5.477678094465067
+avgDstBg:    0.15527735931926323
+min ideal:   1.10
+max ideal:   1.70
+avg ideal:   1.40
 
 name:        kalendrite_ore.png
 diff(fg/bg): 0.16508365755463641
 diff(fg):    0.15688622503561778
 diff(bg):    0.15527735931926323
 diffD:       0.008197432519018638
+diffE:       0.009806298235373184
 diffU:       0.0016088657163545461
 diffS:       0.1470799268002446
+diffW:       102.60872357246308
 multD:       54.37383892620061
 multU:       277.0435536456503
 multS:       3.0305010690063594
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.16508365755463641
+maxDst:      0.819792248190366
+ratDst:      4.965920069459607
+avgDstBg:    0.15527735931926323
+min ideal:   1.10
+max ideal:   1.60
+avg ideal:   1.35
 
 name:        lemurite_ore.png
 diff(fg/bg): 0.12724748456285506
 diff(fg):    0.14364414631069067
 diff(bg):    0.15527735931926323
 diffD:       0.016396661747835606
+diffE:       0.02802987475640817
 diffU:       0.011633213008572563
 diffS:       0.17167402106709884
+diffW:       10.938292324664378
 multD:       20.953546130514063
 multU:       29.533389276593823
 multS:       2.0012824665266327
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.12724748456285506
+maxDst:      0.6427584725344191
+ratDst:      5.051246983329738
+avgDstBg:    0.15527735931926323
+min ideal:   0.65
+max ideal:   1.80
+avg ideal:   1.225
 
 name:        shadow_iron_ore.png
 diff(fg/bg): 0.12883175238711247
 diff(fg):    0.10956378561157534
 diff(bg):    0.15527735931926323
 diffD:       0.019267966775537132
+diffE:       0.026445606932150756
 diffU:       0.04571357370768789
 diffS:       0.13600939254372607
+diffW:       2.8182384779391283
 multD:       18.053058503652462
 multU:       7.609243890435647
 multS:       2.557512572768632
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.12883175238711247
+maxDst:      0.5479634486941913
+ratDst:      4.253326051544155
+avgDstBg:    0.15527735931926323
+min ideal:   1.10
+max ideal:   1.40
+avg ideal:   1.25
 
 name:        vulcanite_ore.png
 diff(fg/bg): 0.13251660308307567
 diff(fg):    0.13211231653406375
 diff(bg):    0.15527735931926323
 diffD:       4.0428654901192296E-4
+diffE:       0.022760756236187563
 diffU:       0.023165042785199486
 diffS:       0.1548730727702513
+diffW:       5.720542125125823
 multD:       885.0030484535177
 multU:       15.445463737839722
 multS:       2.310245557373813
+avgDst:      0.13251660308307567
+maxDst:      0.8512754278751067
+ratDst:      6.423915253407421
+avgDstBg:    0.15527735931926323
 min ideal:   NONE
 max ideal:   NONE
-diff ideal:  -1
+avg ideal:   NONE
 
 name:        vyroxeres_ore.png
 diff(fg/bg): 0.17685583614440561
 diff(fg):    0.15384450056814306
 diff(bg):    0.15527735931926323
 diffD:       0.02301133557626256
+diffE:       0.021578476825142384
 diffU:       0.0014328587511201751
 diffS:       0.13226602374300064
+diffW:       123.42866036595994
 multD:       20.751110078220467
 multU:       333.2573829880919
 multS:       3.610229929628201
-min ideal:   NONE -- Almost
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.17685583614440561
+maxDst:      0.7648733760772729
+ratDst:      4.324841027314143
+avgDstBg:    0.15527735931926323
+min ideal:   1.10
+max ideal:   2.40
+avg ideal:   1.75
 
 name:        adamantine_ore.png
 diff(fg/bg): 0.15453584938585974
 diff(fg):    0.13880988289438514
 diff(bg):    0.040617336633494365
 diffD:       0.01572596649147459
+diffE:       0.11391851275236536
 diffU:       0.09819254626089077
 diffS:       0.02489137014201978
+diffW:       1.5738042781299175
 multD:       26.532346585376512
 multU:       4.249271550950778
 multS:       16.762708961426593
-min ideal:   0.20
-max ideal:   1.15
-diff ideal:  0.95
+avgDst:      0.15453584938585974
+maxDst:      0.4711270953993521
+ratDst:      3.0486589181193637
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   1.25
+avg ideal:   1.35
 
 name:        astral_silver_ore.png
 diff(fg/bg): 0.08630703047082457
 diff(fg):    0.11165621017875896
 diff(bg):    0.040617336633494365
 diffD:       0.02534917970793439
+diffE:       0.0456896938373302
 diffU:       0.07103887354526459
 diffS:       0.06596651634142876
+diffW:       1.214926788159604
 multD:       9.192762249355445
 multU:       3.280302328030931
 multS:       3.5325343097567488
-min ideal:   0.20
-max ideal:   0.45
-diff ideal:  0.25
+avgDst:      0.08630703047082457
+maxDst:      0.39297949005078664
+ratDst:      4.553273214325574
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   0.55
+avg ideal:   0.325
 
 name:        atlarus_ore.png
 diff(fg/bg): 0.1288391471943144
 diff(fg):    0.1351408654292813
 diff(bg):    0.040617336633494365
 diffD:       0.006301718234966891
+diffE:       0.08822181056082004
 diffU:       0.09452352879578693
 diffS:       0.04691905486846126
+diffW:       1.3630378471445406
 multD:       55.20172188823302
 multU:       3.68020218729026
 multS:       7.414166768701951
-min ideal:   0.20
-max ideal:   1.50
-diff ideal:  1.30
+avgDst:      0.1288391471943144
+maxDst:      0.41018054089139194
+ratDst:      3.183663892720123
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   1.55
+avg ideal:   0.875
 
 name:        carmot_ore.png
 diff(fg/bg): 0.11288889901807038
 diff(fg):    0.12857930144978694
 diff(bg):    0.040617336633494365
 diffD:       0.015690402431716557
+diffE:       0.07227156238457602
 diffU:       0.08796196481629256
 diffS:       0.05630773906521093
+diffW:       1.2833830992047233
 multD:       19.425889723049274
 multU:       3.465134367852753
 multS:       5.413110744791156
-min ideal:   0.20
-max ideal:   0.80
-diff ideal:  0.60
+avgDst:      0.11288889901807038
+maxDst:      0.41776513845726504
+ratDst:      3.7006751070394657
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   0.90
+avg ideal:   0.50
 
 name:        coal_ore.png
 diff(fg/bg): 0.04039521655761809
 diff(fg):    0.07275581381888792
 diff(bg):    0.040617336633494365
 diffD:       0.03236059726126983
+diffE:       2.2212007587627675E-4
 diffU:       0.03213847718539355
 diffS:       0.07297793389476419
+diffW:       1.2569113441372728
 multD:       3.370366863905313
 multU:       3.393660629170637
 multS:       1.4945214105793407
-min ideal:   0.15
-max ideal:   0.15
-diff ideal:  0.00
+avgDst:      0.04039521655761809
+maxDst:      0.3568627094904326
+ratDst:      8.834281380356463
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   0.20
+avg ideal:   0.15
 
 name:        copper_ore.png
 diff(fg/bg): 0.13714029700594008
 diff(fg):    0.13081528731104958
 diff(bg):    0.040617336633494365
 diffD:       0.006325009694890499
+diffE:       0.0965229603724457
 diffU:       0.0901979506775552
 diffS:       0.03429232693860387
+diffW:       1.52043694979498
 multD:       58.5420133371746
 multU:       4.105179764446446
 multS:       10.797715844100523
-min ideal:   0.20
-max ideal:   0.90
-diff ideal:  0.70
+avgDst:      0.13714029700594008
+maxDst:      0.45158238912243065
+ratDst:      3.29284972383333
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   1.05
+avg ideal:   0.575
 
 name:        deep_iron_ore.png
 diff(fg/bg): 0.13737701044115272
 diff(fg):    0.12920549345244955
 diff(bg):    0.040617336633494365
 diffD:       0.008171516988703165
+diffE:       0.09675967380765835
 diffU:       0.08858815681895518
 diffS:       0.03244581964479121
+diffW:       1.550737879352268
 multD:       45.391562999121625
 multU:       4.186992274251124
 multS:       11.431917339485638
-min ideal:   0.20
-max ideal:   0.60
-diff ideal:  0.40
+avgDst:      0.13737701044115272
+maxDst:      0.47120869421794886
+ratDst:      3.430040388160852
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   0.75
+avg ideal:   0.425
 
 name:        diamond_ore.png
 diff(fg/bg): 0.057792072743174105
 diff(fg):    0.10589323267398444
 diff(bg):    0.040617336633494365
 diffD:       0.048101159930810336
+diffE:       0.01717473610967974
 diffU:       0.06527589604049008
 diffS:       0.0887184965643047
+diffW:       0.8853508913508621
 multD:       3.2439674351100702
 multU:       2.390447406647328
 multS:       1.7588056882081025
-min ideal:   0.15
-max ideal:   0.40
-diff ideal:  0.25
+avgDst:      0.057792072743174105
+maxDst:      0.5450979848260453
+ratDst:      9.432054587286412
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   1.65
+avg ideal:   0.875
 
 name:        emerald_ore.png
 diff(fg/bg): 0.08240135855091915
 diff(fg):    0.11611618559009525
 diff(bg):    0.040617336633494365
 diffD:       0.033714827039176096
+diffE:       0.041784021917424786
 diffU:       0.07549884895660089
 diffS:       0.07433216367267045
+diffW:       1.0914253619718897
 multD:       6.598985895106601
 multU:       2.946848477324102
 multS:       2.9931009282497425
+avgDst:      0.08240135855091915
+maxDst:      0.4732115946282157
+ratDst:      5.742764475609938
+avgDstBg:    0.040617336633494365
 min ideal:   0.20
-max ideal:   0.55
-diff ideal:  0.35
+max ideal:   1.75  
+avg ideal:   0.975
 
 name:        gold_ore.png
 diff(fg/bg): 0.05999321928926431
 diff(fg):    0.11247696503151497
 diff(bg):    0.040617336633494365
 diffD:       0.05248374574225066
+diffE:       0.019375882655769942
 diffU:       0.0718596283980206
 diffS:       0.09310108237574503
+diffW:       0.8348668178044301
 multD:       3.086321103613886
 multU:       2.254140408071961
 multS:       1.7398475715596362
-min ideal:   0.15
-max ideal:   0.40
-diff ideal:  0.25
+avgDst:      0.05999321928926431
+maxDst:      0.5450979848260453
+ratDst:      9.085993238632382
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   2.45
+avg ideal:   1.275
 
 name:        infuscolium_ore.png
 diff(fg/bg): 0.1338917869889064
 diff(fg):    0.13359007486853902
 diff(bg):    0.040617336633494365
 diffD:       3.0171212036739226E-4
+diffE:       0.09327445035541204
 diffU:       0.09297273823504465
 diffS:       0.04031562451312698
+diffW:       1.4401187867610632
 multD:       1198.1879429631213
 multU:       3.888320724254871
 multS:       8.96694096236407
-min ideal:   0.20
-max ideal:   0.75
-diff ideal:  0.55
+avgDst:      0.1338917869889064
+maxDst:      0.4626065576872045
+ratDst:      3.4550779259188893
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   0.85
+avg ideal:   0.475
 
 name:        iron_ore.png
 diff(fg/bg): 0.028391841638591157
 diff(fg):    0.0673136243480919
 diff(bg):    0.040617336633494365
 diffD:       0.03892178270950075
+diffE:       0.012225494994903208
 diffU:       0.02669628771459754
 diffS:       0.07953911934299512
+diffW:       1.0635127228969175
 multD:       1.9695390880820067
 multU:       2.8714843518216773
 multS:       0.9637769824132113
-min ideal:   0.15
-max ideal:   1.25
-diff ideal:  1.10
+avgDst:      0.028391841638591157
+maxDst:      0.3264730090845659
+ratDst:      11.49883171512244
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   1.30
+avg ideal:   0.70
 
 name:        lapis_ore.png
 diff(fg/bg): 0.06706419786783593
 diff(fg):    0.09222168129272268
 diff(bg):    0.040617336633494365
 diffD:       0.025157483424886745
+diffE:       0.02644686123434157
 diffU:       0.051604344659228314
 diffS:       0.06577482005838112
+diffW:       1.2995843336582893
 multD:       7.1975933039483735
 multU:       3.5088777008773815
 multS:       2.752927854191589
-min ideal:   0.15
-max ideal:   1.95
-diff ideal:  1.85
+avgDst:      0.06706419786783593
+maxDst:      0.37460043756516315
+ratDst:      5.585699217686789
+avgDstBg:    0.040617336633494365
+min ideal:   0.10
+max ideal:   2.00
+avg ideal:   1.05
 
 name:        lutetium_ore.png
 diff(fg/bg): 0.13434391782737143
 diff(fg):    0.1404949220608866
 diff(bg):    0.040617336633494365
 diffD:       0.006151004233515167
+diffE:       0.09372658119387706
 diffU:       0.09987758542739222
 diffS:       0.04676834086700954
+diffW:       1.345085759257117
 multD:       58.970627293262524
 multU:       3.6317315499942158
 multS:       7.755857304524826
-min ideal:   0.20
-max ideal:   1.00
-diff ideal:  0.80
+avgDst:      0.13434391782737143
+maxDst:      0.4542534929911298
+ratDst:      3.3812732302093065
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        manganese_ore.png
 diff(fg/bg): 0.08913293912510378
 diff(fg):    0.11498235432905068
 diff(bg):    0.040617336633494365
 diffD:       0.0258494152039469
+diffE:       0.04851560249160942
 diffU:       0.07436501769555631
 diffS:       0.06646675183744127
+diffW:       1.1985869416451431
 multD:       9.310034046767699
 multU:       3.2361847424418864
 multS:       3.620741633747402
-min ideal:   0.20
-max ideal:   0.50
-diff ideal:  0.30
+avgDst:      0.08913293912510378
+maxDst:      0.3600517922599085
+ratDst:      4.0394919745051014
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        mithril_ore.png
 diff(fg/bg): 0.11317628417110162
 diff(fg):    0.12468157171709542
 diff(bg):    0.040617336633494365
 diffD:       0.011505287545993795
+diffE:       0.07255894753760725
 diffU:       0.08406423508360106
 diffS:       0.05212262417948815
+diffW:       1.3463071906685276
 multD:       26.55961148649237
 multU:       3.635029414805025
 multS:       5.862635891272487
-min ideal:   0.20
-max ideal:   1.40
-diff ideal:  1.20
+avgDst:      0.11317628417110162
+maxDst:      0.40372476743083496
+ratDst:      3.567220556742062
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        orichalcum_ore.png
 diff(fg/bg): 0.10535120467303484
 diff(fg):    0.11887832438828744
 diff(bg):    0.040617336633494365
 diffD:       0.013527119715252597
+diffE:       0.06473386803954048
 diffU:       0.07826098775479307
 diffS:       0.05414445634874697
+diffW:       1.3461522489739166
 multD:       21.02799846566468
 multU:       3.6346110722295752
 multS:       5.253506486149748
-min ideal:   0.20
-max ideal:   0.65
-diff ideal:  0.45
+avgDst:      0.10535120467303484
+maxDst:      0.4050747774851848
+ratDst:      3.844994262214314
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        osmium_ore.png
 diff(fg/bg): 0.11558356286631882
 diff(fg):    0.12505062359364735
 diff(bg):    0.040617336633494365
 diffD:       0.00946706072732853
+diffE:       0.07496622623282445
 diffU:       0.08443328696015298
 diffS:       0.0500843973608229
+diffW:       1.3689335927531372
 multD:       32.96436230077127
 multU:       3.6961207004334704
 multS:       6.230994804445289
-min ideal:   0.20
-max ideal:   0.60
-diff ideal:  0.40
+avgDst:      0.11558356286631882
+maxDst:      0.42585895854086997
+ratDst:      3.6844249128520827
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        oureclase_ore.png
 diff(fg/bg): 0.12704650244391216
 diff(fg):    0.135677837544709
 diff(bg):    0.040617336633494365
 diffD:       0.008631335100796833
+diffE:       0.08642916581041779
 diffU:       0.09506050091121462
 diffS:       0.049248671734291205
+diffW:       1.3364804648207365
 multD:       39.7418884324043
 multU:       3.6084972550159886
 multS:       6.965173770559149
-min ideal:   0.20
-max ideal:   0.85
-diff ideal:  0.65
+avgDst:      0.12704650244391216
+maxDst:      0.4377542946143657
+ratDst:      3.4456225570446004
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        potash_ore.png
 diff(fg/bg): 0.15564192661881046
 diff(fg):    0.13884067339730255
 diff(bg):    0.040617336633494365
 diffD:       0.01680125322150791
+diffE:       0.11502458998531609
 diffU:       0.09822333676380818
 diffS:       0.02381608341198646
+diffW:       1.5845717702817748
 multD:       25.012015254483046
 multU:       4.278343779760792
 multS:       17.64493324117634
-min ideal:   0.20
-max ideal:   0.70
-diff ideal:  0.50
+avgDst:      0.15564192661881046
+maxDst:      0.44066051130869627
+ratDst:      2.8312455447042715
+avgDstBg:    0.040617336633494365
+min ideal:   0.25
+max ideal:   0.80
+avg ideal:   0.525
 
 name:        prometheum_ore.png
 diff(fg/bg): 0.12468503569016565
 diff(fg):    0.12316482703055048
 diff(bg):    0.040617336633494365
 diffD:       0.0015202086596151632
+diffE:       0.08406769905667127
 diffU:       0.08254749039705611
 diffS:       0.03909712797387921
+diffW:       1.5104642805060042
 multD:       221.44959787866833
 multU:       4.078253557366211
 multS:       8.610596578561035
-min ideal:   0.20
-max ideal:   0.45
-diff ideal:  0.25
+avgDst:      0.12468503569016565
+maxDst:      0.4487126396672373
+ratDst:      3.598768987661515
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        redstone_ore.png
 diff(fg/bg): 0.06292348713826011
 diff(fg):    0.10560156010063802
 diff(bg):    0.040617336633494365
 diffD:       0.04267807296237791
+diffE:       0.022306150504765747
 diffU:       0.06498422346714366
 diffS:       0.08329540959587227
+diffW:       0.9682886673266863
 multD:       3.980812709680421
 multU:       2.6143794017820534
 multS:       2.03964919672742
-min ideal:   0.15
-max ideal:   1.95
-diff ideal:  1.85
+avgDst:      0.06292348713826011
+maxDst:      0.5234081734489132
+ratDst:      8.318168576684924
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        saltpeter_ore.png
 diff(fg/bg): 0.10284925444362837
 diff(fg):    0.14156708146273317
 diff(bg):    0.040617336633494365
 diffD:       0.0387178270191048
+diffE:       0.062231917810134006
 diffU:       0.1009497448292388
 diffS:       0.07933516365259917
+diffW:       1.0188163884673773
 multD:       7.172225519287864
 multU:       2.7508042488619187
 multS:       3.5002510137092138
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.10284925444362837
+maxDst:      0.450980347158239
+ratDst:      4.384867441167705
+avgDstBg:    0.040617336633494365
+min ideal:   0.20
+max ideal:   0.20
+avg ideal:   0.20
 
 name:        sulfur_ore.png
 diff(fg/bg): 0.20352508635003555
 diff(fg):    0.1707954630931235
 diff(bg):    0.040617336633494365
 diffD:       0.03272962325691206
+diffE:       0.16290774971654118
 diffU:       0.13017812645962912
 diffS:       0.007887713376582312
+diffW:       1.5634353626463722
 multD:       16.78961376462056
 multU:       4.221275479145205
 multS:       69.66755850644233
-min ideal:   0.25
-max ideal:   0.95
-diff ideal:  0.70
+avgDst:      0.20352508635003555
+maxDst:      0.5101205144153489
+ratDst:      2.506425736324272
+avgDstBg:    0.040617336633494365
+min ideal:   0.30
+max ideal:   1.50
+avg ideal:   0.90
 
 name:        tar_ore.png
 diff(fg/bg): 0.22406554136832757
 diff(fg):    0.11102174137327957
 diff(bg):    0.040617336633494365
 diffD:       0.113043799995048
+diffE:       0.1834482047348332
 diffU:       0.07040440473978521
 diffS:       0.07242646336155364
+diffW:       3.1825500435160863
 multD:       5.351704044989518
 multU:       8.592885117493433
 multS:       8.352982233502598
-min ideal:   NONE
-max ideal:   NONE
-diff ideal:  -1
+avgDst:      0.22406554136832757
+maxDst:      0.5215685754090937
+ratDst:      2.3277500512750384
+avgDstBg:    0.040617336633494365
+min ideal:   0.25
+max ideal:   0.25
+avg ideal:   0.25
 
 name:        tin_ore.png
 diff(fg/bg): 0.12015541355421282
 diff(fg):    0.12650945444645817
 diff(bg):    0.040617336633494365
 diffD:       0.006354040892245352
+diffE:       0.07953807692071846
 diffU:       0.0858921178129638
 diffS:       0.046971377525739724
+diffW:       1.3989108269033461
 multD:       51.057212582988775
 multU:       3.777059232639035
 multS:       6.906751168168248
-min ideal:   0.20
-max ideal:   0.35
-diff ideal:  0.15
+avgDst:      0.12015541355421282
+maxDst:      0.44451744291589945
+ratDst:      3.699520727090153
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
 
 name:        zinc_ore.png
 diff(fg/bg): 0.08997719356570312
 diff(fg):    0.10979731007483932
 diff(bg):    0.040617336633494365
 diffD:       0.019820116509136204
+diffE:       0.049359856932208755
 diffU:       0.06917997344134497
 diffS:       0.06043745314263056
+diffW:       1.3006248642461726
 multD:       12.257164205639986
 multU:       3.511687133464666
 multS:       4.019666779373894
-min ideal:   0.20
-max ideal:   0.65
-diff ideal:  0.45
+avgDst:      0.08997719356570312
+maxDst:      0.3509456674346974
+ratDst:      3.900384681129557
+avgDstBg:    0.040617336633494365
+min ideal:   
+max ideal:   
+avg ideal:   
