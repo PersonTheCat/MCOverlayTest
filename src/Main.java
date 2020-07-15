@@ -17,7 +17,7 @@ public class Main {
     private static final File OUTPUT = new File("output");
 
     private static final String INSTRUCTIONS =
-        "Place each background sprite inside of /backgrounds." +
+        "Place each background sprite inside of /backgrounds.\n" +
         "Then, place ore sprites in directories of the same name in /ores.";
 
     public static void main(String[] args) {
@@ -31,15 +31,7 @@ public class Main {
             final Color[][] bg = getColors(pair.background);
             final Color[][] fg = getColors(pair.ore);
             debugImage(pair.name, bg, fg);
-            for (double d = 0.0; d < 2.0; d += 0.05) {
-                final String name = pair.name.replace(".png", "");
-                final File dir = new File(OUTPUT, name);
-                mkdir(dir);
-
-                final File f = new File(dir, d + ".png");
-                final Color[][] overlay = Extractor.primary(bg, fg, d);
-                writeImage(overlay, f.getPath());
-            }
+            generateManual(pair, bg, fg, 0.2);
         }
     }
 
@@ -184,29 +176,63 @@ public class Main {
     }
 
     private static void debugImage(String path, Color[][] bg, Color[][] fg) {
-        final double diffAB = ImageTools.getAverageDifference(bg, fg);
-        final double diffA = ImageTools.getAverageDifference(fg);
-        final double diffB = ImageTools.getAverageDifference(bg);
+        final double diffAB = ImageTools.getAverageDistance(bg, fg);
+        final double diffA = ImageTools.getAverageDistance(fg);
+        final double diffB = ImageTools.getAverageDistance(bg);
         final double diffD = Math.abs(diffAB - diffA);
+        final double diffE = Math.abs(diffAB - diffB);
         final double diffU = Math.abs(diffA - diffB);
+        final double diffW = diffAB / diffU;
         final double sumU = diffA + diffB;
         final double diffS = Math.abs(diffAB - sumU);
         final double thrsA = Extractor.AVG_DIFF_RATIO * diffAB;
         final double multD = thrsA / diffD;
         final double multU = thrsA / diffU;
         final double multS = thrsA / diffS;
+        final double avgDst = ImageTools.getAverageDistance(bg, fg);
+        final double maxDst = ImageTools.getMaxDistance(bg, fg);
+        final double ratDst = maxDst / avgDst;
+        final double avgDstBg = ImageTools.getAverageDistance(bg);
+        final double maxDist = ImageTools.getMaxDistance(bg, fg);
+        final double maxRel = ImageTools.getMaxRelDist(bg, fg);
 
         System.out.println("name:        " + path);
         System.out.println("diff(fg/bg): " + diffAB);
         System.out.println("diff(fg):    " + diffA);
         System.out.println("diff(bg):    " + diffB);
         System.out.println("diffD:       " + diffD);
+        System.out.println("diffE:       " + diffE);
         System.out.println("diffU:       " + diffU);
         System.out.println("diffS:       " + diffS);
+        System.out.println("diffW:       " + diffW);
         System.out.println("multD:       " + multD);
         System.out.println("multU:       " + multU);
         System.out.println("multS:       " + multS);
+        System.out.println("avgDst:      " + avgDst);
+        System.out.println("maxDst:      " + maxDst);
+        System.out.println("ratDst:      " + ratDst);
+        System.out.println("avgDstBg:    " + avgDstBg);
+        System.out.println("max rel:     " + maxRel);
+        System.out.println("max std:     " + maxDist);
         System.out.println();
+    }
+
+    private static void generateLeveled(ImagePair pair, Color[][] bg, Color[][] fg) {
+        for (double d = 0.0; d < 3.0; d += 0.05) {
+            final String name = pair.name.replace(".png", "");
+            final File dir = new File(OUTPUT, name);
+            mkdir(dir);
+
+            final File f = new File(dir, d + ".png");
+            final Color[][] overlay = Extractor.primary(bg, fg, d);
+            writeImage(overlay, f.getPath());
+        }
+    }
+
+    private static void generateManual(ImagePair pair, Color[][] bg, Color[][] fg, double threshold) {
+        final File f = new File(OUTPUT, pair.name);
+        final Color[][] overlay = Extractor.primary(bg, fg, threshold);
+        writeImage(overlay, f.getPath());
     }
 
     /** For all functions directly related to producing an overlay. */
@@ -235,9 +261,15 @@ public class Main {
             final int w = foreground.length, h = foreground[0].length;
             final Color[][] overlay = new Color[w][h];
 
+            // Todo: Avoid repeated calculations on BG. / Restructure after testing
+            final Color avg = ImageTools.getAverageColor(background);
+            final double bgDist = ImageTools.getAverageDistance(background);
+            final double maxDist = ImageTools.getMaxDistance(background, foreground);
+            final double maxRel = ImageTools.getMaxRelDist(background, foreground);
+
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
-                    overlay[x][y] = ImageTools.getAdjustedOrePixel(background[x][y], foreground[x][y], threshold);
+                    overlay[x][y] = ImageTools.getOrePixelNew(background[x][y], foreground[x][y], avg, maxDist, maxRel, bgDist, threshold);
                 }
             }
             return overlay;
